@@ -1,25 +1,16 @@
-from flask import Flask, render_template
+import os
+from slack_bolt import App
 
-app = Flask(__name__)
+app = App(
+	token=os.environ.get("SLACK_BOT_TOKEN"),
+	signing_secret=os.environ.get("SLACK_SIGNING_SECRET")
+)
 
-@app.route("/")
-def index():
-    
-    # Load current count
-    f = open("count.txt", "r")
-    count = int(f.read())
-    f.close()
-
-    # Increment the count
-    count += 1
-
-    # Overwrite the count
-    f = open("count.txt", "w")
-    f.write(str(count))
-    f.close()
-
-    # Render HTML with count variable
-    return render_template("index.html", count=count)
+@app.message("hello")
+def message_hello(message,say):
+	say(f"Hey there <@{message['user']}>!")
 
 if __name__ == "__main__":
-    app.run()
+	app.start(port=int(os.environ.get("PORT", 3000)))
+
+
